@@ -4,11 +4,11 @@
 
 /* ── Variables ──────────────────────────────────────────────────── */
 :root {
-  --primary:       #1A202C;
-  --primary-hover: #2D3748;
-  --accent:        #E8A838;
-  --accent-dark:   #C98A20;
-  --accent-light:  #FEF3D0;
+  --primary:       #5e6532;
+  --primary-hover: #4a5028;
+  --accent:        #ddd3b2;
+  --accent-dark:   #b8a98a;
+  --accent-light:  #f5f0e8;
   --bg:            #F2F4F7;
   --card:          #FFFFFF;
   --border:        #E2E8F0;
@@ -1065,4 +1065,13 @@ input.has-suffix { padding-right: 2rem; }
     grid-template-columns: 1fr 70px 70px 50px 70px 30px;
     gap: .25rem;
   }
+}
+
+@media (max-width: 680px) {
+  .card { overflow-x: auto; }
+  .data-table { font-size: .75rem; min-width: 520px; }
+  .data-table th, .data-table td { padding: .5rem .4rem; }
+  .notes-cell { max-width: 100px; }
+  .num-col { width: 60px; }
+  .actions-col { width: 70px; }
 }
