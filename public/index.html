@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rates Calculator — Freelance Photo & Video</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════ HEADER -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">🎬</div>
+        <div class="brand-text">
+          <span class="brand-name">Rates Calculator</span>
+          <span class="brand-sub">Freelance Photo &amp; Video</span>
+        </div>
+      </div>
+      <nav class="tab-nav" role="tablist">
+        <button class="tab-btn active" data-tab="knowledge-base" role="tab">
+          <span class="tab-icon">📚</span> Knowledge Base
+        </button>
+        <button class="tab-btn" data-tab="quote-builder" role="tab">
+          <span class="tab-icon">🧮</span> Quote Builder
+        </button>
+        <button class="tab-btn" data-tab="saved-quotes" role="tab">
+          <span class="tab-icon">🗂️</span> Saved Quotes
+          <span class="badge" id="quotes-badge" hidden>0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════ MAIN -->
+  <main class="app-main">
+
+    <!-- ─────────────── KNOWLEDGE BASE ─────────────── -->
+    <section id="knowledge-base" class="tab-content active" role="tabpanel">
+
+      <div class="section-header">
+        <div>
+          <h2>Knowledge Base</h2>
+          <p class="section-desc">Define deliverables, studios, and extras — everything that carries into your quotes.</p>
+        </div>
+      </div>
+
+      <!-- ── Deliverables ── -->
+      <div class="kb-section-header">
+        <div>
+          <h3 class="kb-section-title">📋 Deliverables</h3>
+          <p class="kb-section-desc">Minimum shoot &amp; edit hours per deliverable type.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" id="add-deliverable-btn">+ New Deliverable</button>
+      </div>
+
+      <div class="card slide-in" id="deliverable-form-card" hidden>
+        <h3 class="card-title" id="form-title">New Deliverable</h3>
+        <form id="deliverable-form" novalidate>
+          <input type="hidden" id="edit-id" />
+          <div class="form-grid">
+            <div class="form-group span-2">
+              <label for="del-name">Deliverable Name <span class="required">*</span></label>
+              <input type="text" id="del-name" placeholder="e.g. 60 Second Brand Hero Video" autocomplete="off" />
+            </div>
+            <div class="form-group">
+              <label for="del-shoot">Min. Shoot Hours</label>
+              <input type="number" id="del-shoot" placeholder="0" min="0" step="0.5" />
+            </div>
+            <div class="form-group">
+              <label for="del-edit">Min. Edit Hours</label>
+              <input type="number" id="del-edit" placeholder="0" min="0" step="0.5" />
+            </div>
+            <div class="form-group span-2">
+              <label for="del-notes">Notes</label>
+              <textarea id="del-notes" rows="3" placeholder="Inclusions, caveats, delivery format, file count…"></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" id="cancel-form-btn">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="save-del-btn">Save Deliverable</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card" id="kb-table-card">
+        <div id="kb-empty" class="empty-state" hidden>
+          <div class="empty-icon">📋</div>
+          <p class="empty-title">No deliverables yet</p>
+          <p class="empty-sub">Click <strong>+ New Deliverable</strong> above to get started.</p>
+        </div>
+        <div id="kb-table-wrap">
+          <table class="data-table" id="deliverables-table">
+            <thead>
+              <tr>
+                <th>Deliverable</th>
+                <th class="text-center num-col">Shoot Hrs</th>
+                <th class="text-center num-col">Edit Hrs</th>
+                <th class="text-center num-col">Total Min.</th>
+                <th>Notes</th>
+                <th class="text-right actions-col">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="deliverables-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Studio Hire ── -->
+      <div class="kb-section-header" style="margin-top: 1rem">
+        <div>
+          <h3 class="kb-section-title">🏢 Studio Hire</h3>
+          <p class="kb-section-desc">Fixed time-block pricing, ex-GST.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" id="add-studio-btn">+ New Studio</button>
+      </div>
+
+      <div class="card slide-in" id="studio-form-card" hidden>
+        <h3 class="card-title" id="studio-form-title">New Studio</h3>
+        <form id="studio-form" novalidate>
+          <input type="hidden" id="studio-edit-id" />
+          <div class="form-group" style="margin-bottom: 1.25rem; max-width: 360px">
+            <label for="studio-name-input">Studio Name <span class="required">*</span></label>
+            <input type="text" id="studio-name-input" placeholder="e.g. Main Studio" autocomplete="off" />
+          </div>
+          <div class="blocks-editor">
+            <div class="blocks-editor-header">
+              <span class="blocks-editor-label">Time Blocks <span class="label-hint">(ex-GST)</span></span>
+              <button type="button" class="btn btn-ghost btn-sm" id="add-block-btn">+ Add Block</button>
+            </div>
+            <div class="blocks-grid-header">
+              <span>Hours</span>
+              <span>Price</span>
+              <span></span>
+            </div>
+            <div id="studio-blocks-list"></div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" id="cancel-studio-btn">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Studio</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="studios-grid" class="studios-grid"></div>
+
+      <!-- ── Extras ── -->
+      <div class="kb-section-header" style="margin-top: 1rem">
+        <div>
+          <h3 class="kb-section-title">✨ Extras</h3>
+          <p class="kb-section-desc">Fixed-price add-ons billed per item or per day, ex-GST.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" id="add-extra-btn">+ New Extra</button>
+      </div>
+
+      <div class="card slide-in" id="extra-form-card" hidden>
+        <h3 class="card-title" id="extra-form-title">New Extra</h3>
+        <form id="extra-form" novalidate>
+          <input type="hidden" id="extra-edit-id" />
+          <div class="form-grid">
+            <div class="form-group span-2">
+              <label for="extra-name-input">Name <span class="required">*</span></label>
+              <input type="text" id="extra-name-input" placeholder="e.g. Additional Lighting Kit" autocomplete="off" />
+            </div>
+            <div class="form-group">
+              <label for="extra-price-input">Price (ex-GST)</label>
+              <div class="input-affix-wrap">
+                <span class="input-prefix">$</span>
+                <input type="number" id="extra-price-input" placeholder="0" min="0" step="1" class="has-prefix" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="extra-unit-input">Billing Unit</label>
+              <select id="extra-unit-input" class="select-input">
+                <option value="item">Per item</option>
+                <option value="day">Per day</option>
+                <option value="half-day">Per half-day</option>
+                <option value="session">Per session</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" id="cancel-extra-btn">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Extra</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card" id="extras-table-card">
+        <div id="extras-empty" class="empty-state" hidden>
+          <div class="empty-icon">✨</div>
+          <p class="empty-title">No extras yet</p>
+          <p class="empty-sub">Click <strong>+ New Extra</strong> above to add fixed-price add-ons.</p>
+        </div>
+        <div id="extras-table-wrap">
+          <table class="data-table" id="extras-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th class="text-right num-col">Price (ex-GST)</th>
+                <th class="text-center">Unit</th>
+                <th class="text-right actions-col">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="extras-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ─────────────── QUOTE BUILDER ─────────────── -->
+    <section id="quote-builder" class="tab-content" role="tabpanel">
+
+      <div class="section-header">
+        <div>
+          <h2>Quote Builder</h2>
+          <p class="section-desc">Pick deliverables, studios, and extras — get a recommended price instantly. All prices ex-GST.</p>
+        </div>
+        <button class="btn btn-ghost" id="clear-quote-btn">🗑 Clear</button>
+      </div>
+
+      <div class="quote-layout">
+
+        <!-- LEFT column -->
+        <div class="quote-main">
+
+          <!-- Job details -->
+          <div class="card">
+            <h3 class="card-title">Job Details</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="job-title">Job Title</label>
+                <input type="text" id="job-title" placeholder="e.g. Brand Launch Campaign" />
+              </div>
+              <div class="form-group">
+                <label for="client-name">Client</label>
+                <input type="text" id="client-name" placeholder="e.g. Acme Co." />
+              </div>
+              <div class="form-group span-2">
+                <label for="job-desc">Description / Notes</label>
+                <textarea id="job-desc" rows="2" placeholder="Brief description of the shoot, location, deliverables context…"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Deliverables -->
+          <div class="card">
+            <div class="card-header-row">
+              <h3 class="card-title">📋 Deliverables</h3>
+              <div class="add-del-row">
+                <select id="deliverable-picker" class="select-input">
+                  <option value="">— Pick from Knowledge Base —</option>
+                </select>
+                <button class="btn btn-primary btn-sm" id="add-to-quote-btn">+ Add</button>
+              </div>
+            </div>
+            <div id="qi-empty" class="empty-state small">
+              <div class="empty-icon small-icon">📦</div>
+              <p>No deliverables added yet.</p>
+            </div>
+            <div id="qi-wrapper" hidden>
+              <div class="qi-header">
+                <span class="qi-col-name">Deliverable</span>
+                <span class="qi-col-num">Shoot Hrs</span>
+                <span class="qi-col-num">Edit Hrs</span>
+                <span class="qi-col-num">Qty</span>
+                <span class="qi-col-num">Total Hrs</span>
+                <span class="qi-col-remove"></span>
+              </div>
+              <div id="qi-list"></div>
+            </div>
+          </div>
+
+          <!-- Studio Hire -->
+          <div class="card">
+            <div class="card-header-row">
+              <h3 class="card-title">🏢 Studio Hire</h3>
+              <div class="add-del-row">
+                <select id="studio-picker" class="select-input">
+                  <option value="">— Select Studio —</option>
+                </select>
+                <select id="block-picker" class="select-input" disabled>
+                  <option value="">— Select Block —</option>
+                </select>
+                <button class="btn btn-primary btn-sm" id="add-studio-to-quote-btn">+ Add</button>
+              </div>
+            </div>
+            <div id="si-empty" class="empty-state small">
+              <div class="empty-icon small-icon">🏢</div>
+              <p>No studio hire added yet.</p>
+            </div>
+            <div id="si-list" hidden></div>
+          </div>
+
+          <!-- Extras -->
+          <div class="card">
+            <div class="card-header-row">
+              <h3 class="card-title">✨ Extras</h3>
+              <div class="add-del-row">
+                <select id="extra-picker" class="select-input">
+                  <option value="">— Select Extra —</option>
+                </select>
+                <div class="qty-inline-wrap">
+                  <label for="extra-qty-input" class="qty-inline-label">Qty</label>
+                  <input type="number" id="extra-qty-input" value="1" min="1" step="1" class="qty-inline-input" />
+                </div>
+                <button class="btn btn-primary btn-sm" id="add-extra-to-quote-btn">+ Add</button>
+              </div>
+            </div>
+            <div id="ei-empty" class="empty-state small">
+              <div class="empty-icon small-icon">✨</div>
+              <p>No extras added yet.</p>
+            </div>
+            <div id="ei-list" hidden></div>
+          </div>
+
+          <!-- Rate settings -->
+          <div class="card">
+            <h3 class="card-title">Rate Settings</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="shoot-rate">Shoot Rate (per hour)</label>
+                <div class="input-affix-wrap">
+                  <span class="input-prefix">$</span>
+                  <input type="number" id="shoot-rate" value="150" min="0" step="5" class="has-prefix" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="edit-rate">Edit Rate (per hour)</label>
+                <div class="input-affix-wrap">
+                  <span class="input-prefix">$</span>
+                  <input type="number" id="edit-rate" value="100" min="0" step="5" class="has-prefix" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="profit-margin">
+                  Profit Margin
+                  <span class="tooltip-wrap">
+                    <span class="tooltip-icon">?</span>
+                    <span class="tooltip-text">Applied to total base cost (labour + studio + extras).<br>Final = Cost × (1 + margin%)</span>
+                  </span>
+                </label>
+                <div class="input-affix-wrap">
+                  <input type="number" id="profit-margin" value="20" min="0" max="99" step="1" class="has-suffix" />
+                  <span class="input-suffix">%</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="currency">Currency</label>
+                <select id="currency" class="select-input">
+                  <option value="AUD" selected>🇦🇺 AUD</option>
+                  <option value="USD">🇺🇸 USD</option>
+                  <option value="GBP">🇬🇧 GBP</option>
+                  <option value="EUR">🇪🇺 EUR</option>
+                  <option value="NZD">🇳🇿 NZD</option>
+                  <option value="CAD">🇨🇦 CAD</option>
+                  <option value="JPY">🇯🇵 JPY</option>
+                  <option value="SGD">🇸🇬 SGD</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /quote-main -->
+
+        <!-- RIGHT column: summary panel -->
+        <aside class="quote-sidebar">
+          <div class="card summary-card">
+            <h3 class="card-title">Price Summary</h3>
+
+            <div class="summary-rows">
+              <div class="summary-row">
+                <span class="sr-label">Shoot Hours</span>
+                <span class="sr-value" id="sum-shoot">0.0 hrs</span>
+              </div>
+              <div class="summary-row">
+                <span class="sr-label">Edit Hours</span>
+                <span class="sr-value" id="sum-edit">0.0 hrs</span>
+              </div>
+              <div class="summary-row summary-subtotal">
+                <span class="sr-label">Total Hours</span>
+                <span class="sr-value" id="sum-total-hrs">0.0 hrs</span>
+              </div>
+
+              <div class="summary-sep"></div>
+
+              <div class="summary-row">
+                <span class="sr-label">Shoot Labour</span>
+                <span class="sr-value" id="sum-shoot-cost">$0.00</span>
+              </div>
+              <div class="summary-row sr-sub">
+                <span class="sr-label" id="sum-shoot-sub">0.0 hrs × $150/hr</span>
+              </div>
+              <div class="summary-row" style="margin-top:.25rem">
+                <span class="sr-label">Edit Labour</span>
+                <span class="sr-value" id="sum-edit-cost">$0.00</span>
+              </div>
+              <div class="summary-row sr-sub">
+                <span class="sr-label" id="sum-edit-sub">0.0 hrs × $100/hr</span>
+              </div>
+              <div class="summary-row" id="sum-studio-row" style="margin-top:.25rem" hidden>
+                <span class="sr-label">🏢 Studio Hire</span>
+                <span class="sr-value" id="sum-studio">$0.00</span>
+              </div>
+              <div class="summary-row" id="sum-extras-row" hidden>
+                <span class="sr-label">✨ Extras</span>
+                <span class="sr-value" id="sum-extras">$0.00</span>
+              </div>
+              <div class="summary-row summary-subtotal" style="margin-top:.25rem">
+                <span class="sr-label">Base Cost</span>
+                <span class="sr-value" id="sum-base">$0.00</span>
+              </div>
+              <div class="summary-row">
+                <span class="sr-label">Profit (<span id="sum-margin-pct">20</span>%)</span>
+                <span class="sr-value accent" id="sum-profit">$0.00</span>
+              </div>
+            </div>
+
+            <div class="summary-final">
+              <span class="final-label">Recommended Quote</span>
+              <span class="final-price" id="sum-final">$0.00</span>
+              <span class="final-currency" id="sum-currency">AUD</span>
+              <span class="final-exgst">ex-GST</span>
+            </div>
+
+            <div id="summary-breakdown" hidden>
+              <div class="breakdown-title">Breakdown</div>
+              <div id="breakdown-list"></div>
+            </div>
+
+            <div class="summary-actions">
+              <button class="btn btn-primary w-full" id="save-quote-btn">💾 Save Quote</button>
+            </div>
+          </div>
+        </aside>
+
+      </div><!-- /quote-layout -->
+
+    </section>
+
+    <!-- ─────────────── SAVED QUOTES ─────────────── -->
+    <section id="saved-quotes" class="tab-content" role="tabpanel">
+
+      <div class="section-header">
+        <div>
+          <h2>Saved Quotes</h2>
+          <p class="section-desc">All your past quotes — load any back into the builder to reuse or adjust.</p>
+        </div>
+      </div>
+
+      <div id="sq-empty" class="card empty-state" hidden>
+        <div class="empty-icon">🗂️</div>
+        <p class="empty-title">No saved quotes yet</p>
+        <p class="empty-sub">Head to <strong>Quote Builder</strong> to create and save your first quote.</p>
+      </div>
+
+      <div id="sq-list"></div>
+
+    </section>
+
+  </main>
+
+  <div class="toast-container" id="toast-container"></div>
+  <script src="app.js"></script>
+</body>
+</html>

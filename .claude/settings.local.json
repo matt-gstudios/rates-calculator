@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sudo chown -R 501:20 \"/Users/gstudioshome/.npm\")",
+      "Bash(npm install *)",
+      "Bash(node server.js)",
+      "Bash(curl -s http://localhost:3000/api/deliverables)",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(python3 -m json.tool)",
+      "Bash(pkill -f \"node server.js\")",
+      "Bash(npm start *)",
+      "Bash(node /Users/gstudioshome/rates-calculator/server.js)",
+      "Bash(curl -s -X POST http://localhost:3000/api/quotes -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(curl -s http://localhost:3000/api/studios)",
+      "Bash(curl -s http://localhost:3000/api/extras)",
+      "Bash(xargs kill -9)",
+      "Bash(node *)"
+    ]
+  }
+}
