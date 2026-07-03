@@ -107,6 +107,9 @@ async function loadDeliverables() {
   renderDeliverablePicker();
 }
 
+const CATEGORY_ORDER = ['SHOOT + EDIT', 'SHOOT', 'EDIT'];
+const CATEGORY_ICONS = { 'SHOOT + EDIT': '🎬', 'SHOOT': '📷', 'EDIT': '✂️' };
+
 function renderDeliverables() {
   const tbody     = document.getElementById('deliverables-tbody');
   const empty     = document.getElementById('kb-empty');
@@ -115,41 +118,75 @@ function renderDeliverables() {
   if (deliverables.length === 0) { empty.hidden = false; tableWrap.hidden = true; return; }
   empty.hidden = true; tableWrap.hidden = false;
 
-  tbody.innerHTML = deliverables.map(d => {
-    const total = (d.minShootHours || 0) + (d.minEditHours || 0);
-    return `
-    <tr>
-      <td class="del-name">${escape(d.name)}</td>
-      <td class="text-center"><span class="hour-chip">${d.minShootHours}</span></td>
-      <td class="text-center"><span class="hour-chip">${d.minEditHours}</span></td>
-      <td class="text-center"><span class="hour-chip total">${total}</span></td>
-      <td class="notes-cell ${d.notes ? '' : 'empty'}">${d.notes ? escape(d.notes) : 'No notes'}</td>
-      <td><div class="row-actions">
-        <button class="btn-icon" title="Edit"   onclick="editDeliverable('${d.id}')">✏️</button>
-        <button class="btn-icon danger" title="Delete" onclick="deleteDeliverable('${d.id}')">🗑</button>
-      </div></td>
+  const grouped = {};
+  CATEGORY_ORDER.forEach(cat => { grouped[cat] = []; });
+  deliverables.forEach(d => {
+    const cat = d.category || 'SHOOT + EDIT';
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(d);
+  });
+
+  let html = '';
+  CATEGORY_ORDER.forEach(cat => {
+    const group = grouped[cat];
+    if (!group || group.length === 0) return;
+    html += `<tr class="category-header-row">
+      <td colspan="6"><span class="category-header-label">${CATEGORY_ICONS[cat] || ''} ${cat}</span></td>
     </tr>`;
-  }).join('');
+    group.forEach(d => {
+      const total = (d.minShootHours || 0) + (d.minEditHours || 0);
+      html += `
+      <tr>
+        <td class="del-name">${escape(d.name)}</td>
+        <td class="text-center"><span class="hour-chip">${d.minShootHours}</span></td>
+        <td class="text-center"><span class="hour-chip">${d.minEditHours}</span></td>
+        <td class="text-center"><span class="hour-chip total">${total}</span></td>
+        <td class="notes-cell ${d.notes ? '' : 'empty'}">${d.notes ? escape(d.notes) : 'No notes'}</td>
+        <td><div class="row-actions">
+          <button class="btn-icon" title="Edit"   onclick="editDeliverable('${d.id}')">✏️</button>
+          <button class="btn-icon danger" title="Delete" onclick="deleteDeliverable('${d.id}')">🗑</button>
+        </div></td>
+      </tr>`;
+    });
+  });
+  tbody.innerHTML = html;
 }
 
 function renderDeliverablePicker() {
   const picker = document.getElementById('deliverable-picker');
   const saved  = picker.value;
-  picker.innerHTML = `<option value="">— Pick from Knowledge Base —</option>` +
-    deliverables.map(d =>
-      `<option value="${d.id}">${escape(d.name)} (shoot: ${d.minShootHours}h, edit: ${d.minEditHours}h)</option>`
-    ).join('');
+
+  const grouped = {};
+  CATEGORY_ORDER.forEach(cat => { grouped[cat] = []; });
+  deliverables.forEach(d => {
+    const cat = d.category || 'SHOOT + EDIT';
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(d);
+  });
+
+  let html = `<option value="">— Pick from Knowledge Base —</option>`;
+  CATEGORY_ORDER.forEach(cat => {
+    const group = grouped[cat];
+    if (!group || group.length === 0) return;
+    html += `<optgroup label="${CATEGORY_ICONS[cat] || ''} ${cat}">`;
+    group.forEach(d => {
+      html += `<option value="${d.id}">${escape(d.name)} (shoot: ${d.minShootHours}h, edit: ${d.minEditHours}h)</option>`;
+    });
+    html += `</optgroup>`;
+  });
+  picker.innerHTML = html;
   if (saved) picker.value = saved;
 }
 
 function showDeliverableForm(d = null) {
   const card = document.getElementById('deliverable-form-card');
   document.getElementById('form-title').textContent = d ? 'Edit Deliverable' : 'New Deliverable';
-  document.getElementById('edit-id').value    = d ? d.id : '';
-  document.getElementById('del-name').value   = d ? d.name : '';
-  document.getElementById('del-shoot').value  = d ? d.minShootHours : '';
-  document.getElementById('del-edit').value   = d ? d.minEditHours  : '';
-  document.getElementById('del-notes').value  = d ? d.notes : '';
+  document.getElementById('edit-id').value        = d ? d.id : '';
+  document.getElementById('del-name').value       = d ? d.name : '';
+  document.getElementById('del-category').value   = d ? (d.category || 'SHOOT + EDIT') : 'SHOOT + EDIT';
+  document.getElementById('del-shoot').value      = d ? d.minShootHours : '';
+  document.getElementById('del-edit').value       = d ? d.minEditHours  : '';
+  document.getElementById('del-notes').value      = d ? d.notes : '';
   card.hidden = false;
   card.classList.add('slide-in');
   document.getElementById('del-name').focus();
@@ -192,13 +229,14 @@ function initKnowledgeBase() {
 
   document.getElementById('deliverable-form').addEventListener('submit', async e => {
     e.preventDefault();
-    const id    = document.getElementById('edit-id').value;
-    const name  = document.getElementById('del-name').value.trim();
-    const shoot = parseFloat(document.getElementById('del-shoot').value) || 0;
-    const edit  = parseFloat(document.getElementById('del-edit').value)  || 0;
-    const notes = document.getElementById('del-notes').value.trim();
+    const id       = document.getElementById('edit-id').value;
+    const name     = document.getElementById('del-name').value.trim();
+    const category = document.getElementById('del-category').value;
+    const shoot    = parseFloat(document.getElementById('del-shoot').value) || 0;
+    const edit     = parseFloat(document.getElementById('del-edit').value)  || 0;
+    const notes    = document.getElementById('del-notes').value.trim();
     if (!name) { toast('Please enter a deliverable name.', 'error'); return; }
-    const payload = { name, minShootHours: shoot, minEditHours: edit, notes };
+    const payload = { name, category, minShootHours: shoot, minEditHours: edit, notes };
     try {
       if (id) {
         const updated = await api('PUT', `/api/deliverables/${id}`, payload);

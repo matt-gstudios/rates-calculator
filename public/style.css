@@ -386,6 +386,19 @@ input.has-suffix { padding-right: 2rem; }
 
 .del-name { font-weight: 600; }
 
+.category-header-row td {
+  background: var(--bg);
+  padding: .5rem 1rem .4rem;
+  border-bottom: 1px solid var(--border);
+}
+.category-header-label {
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 .row-actions { display: flex; gap: .25rem; justify-content: flex-end; }
 
 /* ─── Empty state ───────────────────────────────────────────────── */

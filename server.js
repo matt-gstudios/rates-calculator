@@ -111,13 +111,16 @@ app.get('/api/deliverables', (req, res) => {
   res.json(data.deliverables);
 });
 
+const VALID_CATEGORIES = ['SHOOT + EDIT', 'SHOOT', 'EDIT'];
+
 app.post('/api/deliverables', (req, res) => {
-  const { name, minShootHours, minEditHours, notes } = req.body;
+  const { name, minShootHours, minEditHours, notes, category } = req.body;
   if (!name || !name.trim()) return res.status(400).json({ error: 'Deliverable name is required.' });
   const data = readData();
   const item = {
     id: newId(),
     name: name.trim(),
+    category: VALID_CATEGORIES.includes(category) ? category : 'SHOOT + EDIT',
     minShootHours: Math.max(0, parseFloat(minShootHours) || 0),
     minEditHours:  Math.max(0, parseFloat(minEditHours)  || 0),
     notes: (notes || '').trim(),
@@ -132,11 +135,12 @@ app.put('/api/deliverables/:id', (req, res) => {
   const data = readData();
   const idx = data.deliverables.findIndex(d => d.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Deliverable not found.' });
-  const { name, minShootHours, minEditHours, notes } = req.body;
+  const { name, minShootHours, minEditHours, notes, category } = req.body;
   const orig = data.deliverables[idx];
   data.deliverables[idx] = {
     ...orig,
     name: name ? name.trim() : orig.name,
+    category: VALID_CATEGORIES.includes(category) ? category : (orig.category || 'SHOOT + EDIT'),
     minShootHours: minShootHours !== undefined ? Math.max(0, parseFloat(minShootHours) || 0) : orig.minShootHours,
     minEditHours:  minEditHours  !== undefined ? Math.max(0, parseFloat(minEditHours)  || 0) : orig.minEditHours,
     notes: notes !== undefined ? notes.trim() : orig.notes,
